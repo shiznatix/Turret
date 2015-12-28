@@ -54,11 +54,7 @@ void keyPressed() {
     
     port.write(keyCode);
   } else {
-    if ('c' == key) { //controlled mode
-      currentColor = COLOR_YELLOW;
-    } else if ('r' == key) {//random mode
-      currentColor = COLOR_TURQUOISE;
-    } else if ('m' == key) {//move to middle
+    if ('m' == key) {//move to middle
       currentColor = COLOR_PINK;
     } else if ('1' == key) {//fire 1
       currentColor = COLOR_GRAY;
