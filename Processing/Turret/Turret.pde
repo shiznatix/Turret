@@ -1,5 +1,25 @@
 import processing.serial.*;
-color fillColor = color(0, 0, 0); //circle fill color
+
+color COLOR_BLACK = color(0, 0, 0);
+
+//control movements
+color COLOR_WHITE = color(255, 255, 255);
+color COLOR_RED = color(255, 0, 0);
+color COLOR_BLUE = color(0, 0, 255);
+color COLOR_GREEN = color(0, 255, 0);
+
+//modes
+color COLOR_YELLOW = color(255, 255, 0);
+color COLOR_TURQUOISE = color(0, 255, 255);
+color COLOR_PINK = color(255, 0, 255);
+
+//fire
+color COLOR_GRAY = color(125, 125, 125);
+color COLOR_PURPLE = color(125, 0, 125);
+color COLOR_GOLD = color(125, 125, 0);
+
+color currentColor = COLOR_BLACK;
+
 Serial port;
 
 void setup() {
@@ -12,7 +32,7 @@ void setup() {
 void draw() {
   background(0, 0, 0);
   if (true == keyPressed) { // if key is pressed
-    fill(fillColor);
+    fill(currentColor);
     ellipse(50, 50, 50, 50); 
   }
   else {
@@ -23,18 +43,30 @@ void draw() {
 void keyPressed() {
   if (CODED == key) {
     if (UP == keyCode) {
-      fillColor = color(255, 255, 255); //white
+      currentColor = COLOR_WHITE;
     } else if (DOWN == keyCode) {
-      fillColor = color(255, 0, 0); //red
+      currentColor = COLOR_RED;
     } else if (LEFT == keyCode){
-      fillColor = color(0, 255, 0); //green1
+      currentColor = COLOR_GREEN;
     } else if (RIGHT == keyCode) {
-      fillColor = color(0, 255, 150); //green2      
+      currentColor = COLOR_BLUE;      
     }
     
     port.write(keyCode);
-  } else if ('c' == key) {
-    fillColor = color(0, 0, 255); //blue
+  } else {
+    if ('c' == key) { //controlled mode
+      currentColor = COLOR_YELLOW;
+    } else if ('r' == key) {//random mode
+      currentColor = COLOR_TURQUOISE;
+    } else if ('m' == key) {//move to middle
+      currentColor = COLOR_PINK;
+    } else if ('1' == key) {//fire 1
+      currentColor = COLOR_GRAY;
+    } else if ('2' == key) {//fire 2
+      currentColor = COLOR_PURPLE;
+    } else if ('3' == key) {//fire 3
+      currentColor = COLOR_GOLD;
+    }
     
     port.write(key);
   }
