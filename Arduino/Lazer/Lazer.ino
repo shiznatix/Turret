@@ -10,7 +10,7 @@ const int XY_MID = 142;
 
 const int Z_MIN = 50;
 const int Z_MAX = 140;
-const int Z_MID = 85;
+const int Z_MID = 73;
 
 int currentXY = XY_MID;
 int currentZ = Z_MID;
@@ -62,7 +62,7 @@ void moveServos() {
 
   //printing to Serial slows us down a lot
   //so only enable when needed
-  //printCurrentPosition();
+  printCurrentPosition();
 }
 
 void printCurrentPosition() {

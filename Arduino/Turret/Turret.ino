@@ -7,13 +7,13 @@ const boolean MANUAL_INPUT = false;
 const int SERVO_XY_PIN = A2;
 const int SERVO_Z_PIN = A0;
 
-const int XY_MIN = 120;//limit 105
-const int XY_MAX = 170;//limit 180
-const int XY_MID = 142;
+const int XY_MIN = 110;//limit 105
+const int XY_MAX = 180;//limit 180
+const int XY_MID = 160;
 
 const int Z_MIN = 10;
 const int Z_MAX = 160;
-const int Z_MID = 85;
+const int Z_MID = 75;
 
 const int STEP_MOVEMENT = 3;
 
@@ -32,7 +32,7 @@ unsigned long igniter1Timer = 0;
 unsigned long igniter2Timer = 0;
 unsigned long igniter3Timer = 0;
 
-const int IGNITER_AUTO_SHUTOFF = 3000;
+const int IGNITER_AUTO_SHUTOFF = 5000;
 
 void setup() {
   Serial.begin(9600);
@@ -80,9 +80,9 @@ void loop() {
       } else if (byte(39) == key) { //right
         currentZ -= STEP_MOVEMENT;
       } else if (byte(38) == key) { //up
-        currentXY -= STEP_MOVEMENT;
-      } else if (byte(40) == key) { //down
         currentXY += STEP_MOVEMENT;
+      } else if (byte(40) == key) { //down
+        currentXY -= STEP_MOVEMENT;
       } else if (byte(109) == key) { //midde (m)
         middlePosition();
       } else if (byte(49) == key) { //fire 1 (1)
