@@ -9,11 +9,8 @@ const int XY_MAX = 170;//limit 180
 const int XY_MID = 142;
 
 const int Z_MIN = 50;
-const int Z_MAX = 140;
+const int Z_MAX = 120;
 const int Z_MID = 73;
-
-int currentXY = XY_MID;
-int currentZ = Z_MID;
 
 Servo servoXY;
 Servo servoZ;
@@ -33,42 +30,48 @@ void setup() {
   servoXY.attach(SERVO_XY_PIN);
   servoZ.attach(SERVO_Z_PIN);
 
-  randomSeed(analogRead(0));
+  moveServos(XY_MIN, Z_MID);
 }
 
 void loop() {
-  unsigned long currentTime = millis();
-  
-  if (currentTime - randomTimer >= RANDOM_INTERVAL) {
-    randomTimer = currentTime;
-    
-    randomPosition();
-    moveServos();
+  int xy, z;
+
+  //spiral from center
+  for (double i = 0; i < 25; i += 0.1) {
+    xy = XY_MID + (i * cos(i));
+    z = Z_MID + (i * sin(i));
+
+    moveServos(xy, z);
+    delay(70);
+  }
+
+  //sprial fom end
+  for (double i = 25; i > 0; i -= 0.1) {
+    xy = XY_MID + (i * cos(i));
+    z = Z_MID + (i * sin(i));
+
+    moveServos(xy, z);
+    delay(70);
   }
 }
 
-void randomPosition() {
-  currentXY = random(XY_MIN, (XY_MAX + 1));
-  currentZ = random(Z_MIN, (Z_MAX + 1));
-}
-
-void moveServos() {
+void moveServos(int xy, int z) {
   //make sure we are constrained
-  currentXY = constrain(currentXY, XY_MIN, XY_MAX);
-  currentZ = constrain(currentZ, Z_MIN, Z_MAX);
+  xy = constrain(xy, XY_MIN, XY_MAX);
+  z = constrain(z, Z_MIN, Z_MAX);
   
-  servoXY.write(currentXY);
-  servoZ.write(currentZ);
+  servoXY.write(xy);
+  servoZ.write(z);
 
   //printing to Serial slows us down a lot
   //so only enable when needed
-  printCurrentPosition();
+  printPosition(xy, z);
 }
 
-void printCurrentPosition() {
-  Serial.print("Current xy: ");
-  Serial.print(currentXY);
+void printPosition(int xy, int z) {
+  Serial.print("xy: ");
+  Serial.print(xy);
   Serial.print(" z: ");
-  Serial.println(currentZ);
+  Serial.println(z);
 }
 
