@@ -7,12 +7,12 @@ const boolean MANUAL_INPUT = false;
 const int SERVO_XY_PIN = A2;
 const int SERVO_Z_PIN = A0;
 
-const int XY_MIN = 110;//limit 105
+const int XY_MIN = 130;//limit 105
 const int XY_MAX = 180;//limit 180
 const int XY_MID = 160;
 
-const int Z_MIN = 10;
-const int Z_MAX = 160;
+const int Z_MIN = 40;
+const int Z_MAX = 130;
 const int Z_MID = 75;
 
 const int STEP_MOVEMENT = 3;
@@ -24,15 +24,15 @@ Servo servoXY;
 Servo servoZ;
 
 //Ignighter setup
-const int IGNITER_1_PIN = 7;
+const int IGNITER_1_PIN = 3;
 const int IGNITER_2_PIN = 5;
-const int IGNITER_3_PIN = 3;
+const int IGNITER_3_PIN = 7;
 
 unsigned long igniter1Timer = 0;
 unsigned long igniter2Timer = 0;
 unsigned long igniter3Timer = 0;
 
-const int IGNITER_AUTO_SHUTOFF = 5000;
+const int IGNITER_AUTO_SHUTOFF = 1500;
 
 void setup() {
   Serial.begin(9600);

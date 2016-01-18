@@ -24,9 +24,9 @@ Serial port;
 
 void setup() {
   size(100, 100);
-  //println("Available serial ports:");
-  //println(Serial.list());
-  port = new Serial(this, Serial.list()[2], 9600);  
+  println("Available serial ports:");
+  println(Serial.list());
+  port = new Serial(this, Serial.list()[1], 9600);  
 }
 
 void draw() {
