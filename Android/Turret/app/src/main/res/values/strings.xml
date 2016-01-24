@@ -1,0 +1,20 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Turret</string>
+    <string name="action_connect">Connect</string>
+    <string name="title_paired_devices">Paired devices</string>
+    <string name="title_other_devices">Other device</string>
+    <string name="button_scan">Scan</string>
+    <string name="none_paired">None paired</string>
+    <string name="scanning">Scanning...</string>
+    <string name="select_device">Select device</string>
+    <string name="none_found">None found</string>
+    <string name="title_connecting">connecting...</string>
+    <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="title_not_connected">not connected</string>
+    <string name="not_connected">Not connected</string>
+    <string name="unable_to_connect">Unable to connect device</string>
+    <string name="device_connection_lost">Device connection was lost</string>
+    <string name="fire_1">Fire 1</string>
+    <string name="fire_2">Fire 2</string>
+    <string name="fire_3">Fire 3</string>
+</resources>

@@ -1,4 +1,7 @@
 #include <Servo.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial btSerial(10, 11); // RX, TX
 
 //Modes
 const boolean MANUAL_INPUT = false;
@@ -37,6 +40,7 @@ const int IGNITER_AUTO_SHUTOFF = 1500;
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(50);
+  btSerial.begin(9600);
 
   //setup servos
   pinMode(SERVO_XY_PIN, OUTPUT);
@@ -72,7 +76,11 @@ void loop() {
       moveServos();
     }
   } else {
+    bool gotMessage = false;
+    
     if (Serial.available()) {
+      gotMessage = true;
+      
       char key = Serial.read();
   
       if (byte(37) == key) { //left
@@ -95,7 +103,34 @@ void loop() {
         fire(IGNITER_3_PIN);
         igniter3Timer = currentTime;
       }
+    } else if (btSerial.available()) {
+      gotMessage = true;
 
+      char key = btSerial.read();
+
+      if ('l' == key) { //left
+        currentZ += STEP_MOVEMENT;
+      } else if ('r' == key) { //right
+        currentZ -= STEP_MOVEMENT;
+      } else if ('u' == key) { //up
+        currentXY += STEP_MOVEMENT;
+      } else if ('d' == key) { //down
+        currentXY -= STEP_MOVEMENT;
+      } else if ('m' == key) { //midde (m)
+        middlePosition();
+      } else if ('1' == key) { //fire 1 (1)
+        fire(IGNITER_1_PIN);
+        igniter1Timer = currentTime;
+      } else if ('2' == key) { //fire 2 (2)
+        fire(IGNITER_2_PIN);
+        igniter2Timer = currentTime;
+      } else if ('3' == key) { //fire 3 (3)
+        fire(IGNITER_3_PIN);
+        igniter3Timer = currentTime;
+      }
+    }
+
+    if (gotMessage) {
       moveServos();
     }
   }
@@ -110,6 +145,10 @@ void loop() {
   if (currentTime - igniter3Timer >= IGNITER_AUTO_SHUTOFF) {
     digitalWrite(IGNITER_3_PIN, LOW);
   }
+}
+
+void positionStep(int direction) {
+  
 }
 
 void middlePosition() {
