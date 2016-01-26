@@ -57,6 +57,7 @@ void setup() {
   pinMode(IGNITER_2_PIN, OUTPUT);
   pinMode(IGNITER_3_PIN, OUTPUT);
 
+  //ensure our igniters are cold...
   digitalWrite(IGNITER_1_PIN, LOW);
   digitalWrite(IGNITER_2_PIN, LOW);
   digitalWrite(IGNITER_3_PIN, LOW);
@@ -145,10 +146,6 @@ void loop() {
   if (currentTime - igniter3Timer >= IGNITER_AUTO_SHUTOFF) {
     digitalWrite(IGNITER_3_PIN, LOW);
   }
-}
-
-void positionStep(int direction) {
-  
 }
 
 void middlePosition() {

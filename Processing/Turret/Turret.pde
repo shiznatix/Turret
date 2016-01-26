@@ -24,9 +24,15 @@ Serial port;
 
 void setup() {
   size(100, 100);
+  
+  String[] serialDevices = Serial.list();
   println("Available serial ports:");
-  println(Serial.list());
-  port = new Serial(this, Serial.list()[1], 9600);  
+  
+  for (int i = 0; i < serialDevices.length; i++) {
+    println(i + ": " + serialDevices[i]);
+  }
+  
+  port = new Serial(this, Serial.list()[1], 9600);
 }
 
 void draw() {
