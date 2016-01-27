@@ -7,24 +7,24 @@ SoftwareSerial btSerial(10, 11); // RX, TX
 const boolean MANUAL_INPUT = false;
 
 //Servo setup
-const int SERVO_XY_PIN = A2;
-const int SERVO_Z_PIN = A0;
+const int SERVO_TILT_PIN = A2;
+const int SERVO_PAN_PIN = A0;
 
-const int XY_MIN = 130;//limit 105
-const int XY_MAX = 180;//limit 180
-const int XY_MID = 160;
+const int TILT_MIN = 130;//limit 105
+const int TILT_MAX = 180;//limit 180
+const int TILT_MID = 160;
 
-const int Z_MIN = 40;
-const int Z_MAX = 130;
-const int Z_MID = 75;
+const int PAN_MIN = 40;
+const int PAN_MAX = 130;
+const int PAN_MID = 75;
 
 const int STEP_MOVEMENT = 3;
 
-int currentXY = XY_MID;
-int currentZ = Z_MID;
+int currentTilt = TILT_MID;
+int currentPan = PAN_MID;
 
-Servo servoXY;
-Servo servoZ;
+Servo servoTilt;
+Servo servoPan;
 
 //Ignighter setup
 const int IGNITER_1_PIN = 3;
@@ -43,11 +43,11 @@ void setup() {
   btSerial.begin(9600);
 
   //setup servos
-  pinMode(SERVO_XY_PIN, OUTPUT);
-  pinMode(SERVO_Z_PIN, OUTPUT);
+  pinMode(SERVO_TILT_PIN, OUTPUT);
+  pinMode(SERVO_PAN_PIN, OUTPUT);
   
-  servoXY.attach(SERVO_XY_PIN);
-  servoZ.attach(SERVO_Z_PIN);
+  servoTilt.attach(SERVO_TILT_PIN);
+  servoPan.attach(SERVO_PAN_PIN);
 
   middlePosition();
   moveServos();
@@ -68,70 +68,55 @@ void loop() {
   
   if (MANUAL_INPUT) {//only used to debug
     while (Serial.available()) {
-      int xy = Serial.parseInt();
-      int z = Serial.parseInt();
+      int tilt = Serial.parseInt();
+      int pan = Serial.parseInt();
   
-      currentXY = xy;
-      currentZ = z;
+      currentTilt = tilt;
+      currentPan = pan;
   
       moveServos();
     }
   } else {
-    bool gotMessage = false;
-    
+    int gotMessageFrom = 0;
+    boolean shouldMoveServos = false;
+
     if (Serial.available()) {
-      gotMessage = true;
-      
-      char key = Serial.read();
-  
-      if (byte(37) == key) { //left
-        currentZ += STEP_MOVEMENT;
-      } else if (byte(39) == key) { //right
-        currentZ -= STEP_MOVEMENT;
-      } else if (byte(38) == key) { //up
-        currentXY += STEP_MOVEMENT;
-      } else if (byte(40) == key) { //down
-        currentXY -= STEP_MOVEMENT;
-      } else if (byte(109) == key) { //midde (m)
-        middlePosition();
-      } else if (byte(49) == key) { //fire 1 (1)
-        fire(IGNITER_1_PIN);
-        igniter1Timer = currentTime;
-      } else if (byte(50) == key) { //fire 2 (2)
-        fire(IGNITER_2_PIN);
-        igniter2Timer = currentTime;
-      } else if (byte(51) == key) { //fire 3 (3)
-        fire(IGNITER_3_PIN);
-        igniter3Timer = currentTime;
-      }
+      gotMessageFrom = 1;
     } else if (btSerial.available()) {
-      gotMessage = true;
-
-      char key = btSerial.read();
-
-      if ('l' == key) { //left
-        currentZ += STEP_MOVEMENT;
-      } else if ('r' == key) { //right
-        currentZ -= STEP_MOVEMENT;
-      } else if ('u' == key) { //up
-        currentXY += STEP_MOVEMENT;
-      } else if ('d' == key) { //down
-        currentXY -= STEP_MOVEMENT;
-      } else if ('m' == key) { //midde (m)
+      gotMessageFrom = 2;
+    }
+    
+    if (gotMessageFrom > 0) {
+      char key = (1 == gotMessageFrom ? Serial.read() : btSerial.read());
+  
+      if ('l' == key) { //left arrow byte(37)
+        currentPan += STEP_MOVEMENT;
+        shouldMoveServos = true;
+      } else if ('r' == key) { //right arrow byte(39)
+        currentPan -= STEP_MOVEMENT;
+        shouldMoveServos = true;
+      } else if ('u' == key) { //up arrow byte(38)
+        currentTilt += STEP_MOVEMENT;
+        shouldMoveServos = true;
+      } else if ('d' == key) { //down arrow byte(40)
+        currentTilt -= STEP_MOVEMENT;
+        shouldMoveServos = true;
+      } else if ('m' == key) { //midde (m) byte(109)
         middlePosition();
-      } else if ('1' == key) { //fire 1 (1)
+        shouldMoveServos = true;
+      } else if ('1' == key) { //fire 1 (1) byte(49)
         fire(IGNITER_1_PIN);
         igniter1Timer = currentTime;
-      } else if ('2' == key) { //fire 2 (2)
+      } else if ('2' == key) { //fire 2 (2) byte(50)
         fire(IGNITER_2_PIN);
         igniter2Timer = currentTime;
-      } else if ('3' == key) { //fire 3 (3)
+      } else if ('3' == key) { //fire 3 (3) byte(51)
         fire(IGNITER_3_PIN);
         igniter3Timer = currentTime;
       }
     }
 
-    if (gotMessage) {
+    if (shouldMoveServos) {
       moveServos();
     }
   }
@@ -149,17 +134,17 @@ void loop() {
 }
 
 void middlePosition() {
-  currentXY = XY_MID;
-  currentZ = Z_MID;
+  currentTilt = TILT_MID;
+  currentPan = PAN_MID;
 }
 
 void moveServos() {
   //make sure we are constrained
-  currentXY = constrain(currentXY, XY_MIN, XY_MAX);
-  currentZ = constrain(currentZ, Z_MIN, Z_MAX);
+  currentTilt = constrain(currentTilt, TILT_MIN, TILT_MAX);
+  currentPan = constrain(currentPan, PAN_MIN, PAN_MAX);
   
-  servoXY.write(currentXY);
-  servoZ.write(currentZ);
+  servoTilt.write(currentTilt);
+  servoPan.write(currentPan);
 
   //printing to Serial slows us down a lot
   //so only enable when needed
@@ -167,10 +152,10 @@ void moveServos() {
 }
 
 void printCurrentPosition() {
-  Serial.print("Current xy: ");
-  Serial.print(currentXY);
+  Serial.print("Current tilt: ");
+  Serial.print(currentTilt);
   Serial.print(" z: ");
-  Serial.println(currentZ);
+  Serial.println(currentPan);
 }
 
 void fire(int firePin) {

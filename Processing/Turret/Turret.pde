@@ -32,7 +32,7 @@ void setup() {
     println(i + ": " + serialDevices[i]);
   }
   
-  port = new Serial(this, Serial.list()[1], 9600);
+  port = new Serial(this, Serial.list()[2], 9600);
 }
 
 void draw() {
@@ -48,17 +48,25 @@ void draw() {
   
 void keyPressed() {
   if (CODED == key) {
+    char sendChar = '.';
+    
     if (UP == keyCode) {
       currentColor = COLOR_WHITE;
+      sendChar = 'u';
     } else if (DOWN == keyCode) {
       currentColor = COLOR_RED;
+      sendChar = 'd';
     } else if (LEFT == keyCode){
       currentColor = COLOR_GREEN;
+      sendChar = 'l';
     } else if (RIGHT == keyCode) {
-      currentColor = COLOR_BLUE;      
+      currentColor = COLOR_BLUE;
+      sendChar = 'r';
     }
     
-    port.write(keyCode);
+    if ('.' != sendChar) {
+      port.write(sendChar);
+    }
   } else {
     if ('m' == key) {//move to middle
       currentColor = COLOR_PINK;

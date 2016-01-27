@@ -3,40 +3,51 @@ import processing.video.*;
 import processing.serial.*;
 import java.awt.*;
 
+//Camera connection
 Capture cam;
 OpenCV opencv;
+final String cameraName = "name=USB2.0 Camera #2,size=640x480,fps=30";
 
 //The variables correspond to the middle of the screen,
 //and will be compared to the midFace values
 int midScreenY;
 int midScreenX;
-int midScreenWindow = 10;  //This is the acceptable 'error' for the center of the screen.
-//Servo positions
-int servoTilt = 90;
-int servoPan = 90;
-int stepSize = 1;
+int midScreenWindow = 50;  //This is the acceptable 'error' for the center of the screen.
 
 //Arduino serial connection
 Serial port;
+final String arduinoPortName = "/dev/cu.usbmodem1411";
 
 void setup() {
   size(640, 480);
   
   //Setup Arduino serial connection
   String[] serialDevices = Serial.list();
+  int serialDevicePort = -1;
   println("Available serial ports:");
   
   for (int i = 0; i < serialDevices.length; i++) {
-    println(i + ": " + serialDevices[i]);
+    if (serialDevicePort < 0 && serialDevices[i].indexOf(arduinoPortName) > -1) {
+      serialDevicePort = i;
+      println("Found " + i + ": '" + serialDevices[i] + "' looking for: '" + arduinoPortName + "'");
+    } else {
+      println(i + ": " + serialDevices[i] + "' looking for: " + arduinoPortName + "'");
+    }
   }
   
-  port = new Serial(this, Serial.list()[1], 9600);
+  if (serialDevicePort < 0) {
+    println("Could not find arduino");
+    exit();
+  }
+  
+  port = new Serial(this, Serial.list()[serialDevicePort], 9600);
   
   //Setup camera and OpenCV
   midScreenY = (height / 2);
   midScreenX = (width / 2);
 
   String[] cameras = Capture.list();
+  int cameraPort = -1;
   
   if (cameras.length == 0) {
     println("There are no cameras available for capture.");
@@ -46,11 +57,20 @@ void setup() {
   println("Available cameras:");
   
   for (int i = 0; i < cameras.length; i++) {
-    print(i + ": ");
-    println(cameras[i]);
+    if (cameraPort < 0 && cameras[i].indexOf(cameraName) > -1) {
+      cameraPort = i;
+      println("Found " + i + ": " + cameras[i]);
+    } else {
+      println(i + ": " + cameras[i]);
+    }
   }
   
-  cam = new Capture(this, cameras[0]);
+  if (cameraPort < 0) {
+    println("Could not find camera");
+    exit();
+  }
+  
+  cam = new Capture(this, cameras[cameraPort]);
   cam.start();
   opencv = new OpenCV(this, width, height);
   opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
@@ -81,43 +101,44 @@ void draw() {
       
       int midFaceX = face.x + (face.width / 2);
       int midFaceY = face.y + (face.height / 2);
+      char[] sendChars = {'.', '.', '.', '.'};
       
       println("midFaceX: " + midFaceX + " midScreenX: " + midScreenX);
       println("midFaceY: " + midFaceY + " midScreenY: " + midScreenY);
       
       //Find out if the Y component of the face is below the middle of the screen.
       if (midFaceY < (midScreenY - midScreenWindow)) {
-        if (servoTilt >= 5) {
-          //If it is below the middle of the screen,
-          //update the tilt position variable to lower the tilt servo.
-          servoTilt -= stepSize;
-        }
+        //sendChar = 'd';
+        sendChars[0] = 'd';
       }
       //Find out if the Y component of the face is above the middle of the screen.
       else if (midFaceY > (midScreenY + midScreenWindow)) {
-        if (servoTilt <= 175) {
-          //Update the tilt position variable to raise the tilt servo.
-          servoTilt +=stepSize;
-        }
+        //sendChar = 'u';
+        sendChars[1] = 'u';
       }
       
       //Find out if the X component of the face is to the left of the middle of the screen.
       if (midFaceX < (midScreenX - midScreenWindow)) {
-        if (servoPan >= 5){
-          //Update the pan position variable to move the servo to the left.
-          servoPan -= stepSize;
-        }
+        sendChars[2] = 'l';
       }
       //Find out if the X component of the face is to the right of the middle of the screen.
-      else if (midFaceX > midScreenX + midScreenWindow) {
-        if (servoPan <= 175) {
-          //Update the pan position variable to move the servo to the right.
-          servoPan +=stepSize;
+      else if (midFaceX > (midScreenX + midScreenWindow)) {
+        sendChars[3] = 'r';
+      }
+      
+      boolean sentChars = false;
+      
+      for (int i = 0; i < 4; i++) {
+        if ('.' != sendChars[i]) {
+          println("sendChar: " + sendChars[i]);
+          port.write(sendChars[i]);
+          sentChars = true;
         }
       }
       
-      println("servoTilt: " + servoTilt);
-      println("servoPan: " + servoPan);
+      if (sentChars) {
+        delay(100);
+      }
     }
   }
 }
