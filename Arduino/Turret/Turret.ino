@@ -18,7 +18,7 @@ const int PAN_MIN = 40;
 const int PAN_MAX = 130;
 const int PAN_MID = 75;
 
-const int STEP_MOVEMENT = 3;
+const int STEP_MOVEMENT = 2;
 
 int currentTilt = TILT_MID;
 int currentPan = PAN_MID;
